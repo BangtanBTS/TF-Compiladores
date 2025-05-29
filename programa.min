@@ -9,7 +9,7 @@ while i <= n
     i += 1
 end while
 
-print("Fatorial (iterativo):", fat)
+print("Fatorial:", fat)
 
 # ---------- Fatorial Recursivo ----------
 func fatorial_rec(n)
@@ -18,8 +18,6 @@ func fatorial_rec(n)
     end if
     return n * fatorial_rec(n - 1)
 end func
-
-print("Fatorial (recursivo):", fatorial_rec(n))
 
 # ---------- Fibonacci ----------
 print("Quantos termos de Fibonacci?")
