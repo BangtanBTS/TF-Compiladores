@@ -12,7 +12,6 @@ class Token:
         self.type, self.val, self.line, self.col = typ, val, line, col
     def __repr__(self):
         return f"{self.type}({self.val!r})@{self.line}:{self.col}"
-
 class Lexer:
     token_spec = [
         ('OP',       r'\*\*=|\+=|-=|\*=|/=|%=|==|!=|<=|>=|\*\*|&&|\|\||[+\-*/%<>=!()\[\]{},:]'),
@@ -56,8 +55,6 @@ class Lexer:
             yield tok
             col += len(txt)
         yield Token('EOF', None, line, col)
-
-# AST NODES
 class Node:
     pass
 
@@ -135,7 +132,6 @@ class Return(Node):
     __slots__ = ('expr',)
     def __init__(self, expr):
         self.expr = expr
-# PARSER
 class Parser:
     def __init__(self, toks):
         self.tokens = iter(toks)
@@ -331,7 +327,6 @@ def eval_node(node, env, funcs):
     if nt == 'Array': return [eval_node(elem, env, funcs) for elem in node.elements]
 
     if nt == 'BinOp':
-        # Acesso a propriedade/índice
         if node.op == '[]':
             obj = eval_node(node.l, env, funcs)
             idx = eval_node(node.r, env, funcs)
@@ -340,11 +335,9 @@ def eval_node(node, env, funcs):
             except (KeyError, IndexError):
                 raise RuntimeError(f"Erro de acesso: chave ou índice '{idx}' não encontrado.")
         
-        # Operadores lógicos com curto-circuito
         if node.op in ('&&', 'and'): return eval_node(node.l, env, funcs) and eval_node(node.r, env, funcs)
         if node.op in ('||', 'or'): return eval_node(node.l, env, funcs) or eval_node(node.r, env, funcs)
-        
-        # Outros operadores binários
+      
         l, r = eval_node(node.l, env, funcs), eval_node(node.r, env, funcs)
         if node.op == '+' and (isinstance(l, str) or isinstance(r, str)): return str(l) + str(r)
         ops = {'+': operator.add, '-': operator.sub, '*': operator.mul, '%': operator.mod, '**': operator.pow, '==': operator.eq, '!=': operator.ne, '<': operator.lt, '>': operator.gt, '<=': operator.le, '>=': operator.ge}
@@ -361,7 +354,6 @@ def eval_node(node, env, funcs):
         raise RuntimeError(f"Operador unário desconhecido: '{node.op}'")
 
     if nt == 'Assign':
-        # Atribuição a propriedade de objeto 
         if isinstance(node.var, BinOp) and node.var.op == '[]':
             obj = eval_node(node.var.l, env, funcs)
             idx = eval_node(node.var.r, env, funcs)
@@ -369,7 +361,6 @@ def eval_node(node, env, funcs):
             obj[idx] = val
             return None
 
-        # Atribuição a variável normal
         name = node.var.name
         val = eval_node(node.expr, env, funcs)
         if node.op != '=':
@@ -425,7 +416,6 @@ def eval_node(node, env, funcs):
 
     raise RuntimeError(f"Nó AST desconhecido: {nt}")
 
-# REPL e MAIN
 def run(code):
     try:
         toks = list(Lexer(code).tokenize())
